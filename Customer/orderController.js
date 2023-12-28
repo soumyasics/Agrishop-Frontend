@@ -23,6 +23,7 @@ await cartSchema.findByIdAndDelete({_id:req.body.cartid}).exec()
         userid: req.body.userid,
         total: req.body.total,
         date: date,
+        deliverystatus:req.body.deliverystatus
 
     })
     obj.save((err, data) => {

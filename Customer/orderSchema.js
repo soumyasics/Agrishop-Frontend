@@ -16,6 +16,10 @@ const cSchema = mongoose.Schema({
     type: Boolean,
     default: true,
   },
+  deliverystatus:{
+    type:Boolean,
+    default:false
+  }
  
 });
 
