@@ -7,14 +7,25 @@ const addtoOrders = async (req, res) => {
     date = new Date()
     // cart.find({userid:req.body.userid,product_id:req.body.product_id}).exec().then(data=>{
     //     if(data.length<=0){
-await cartSchema.findByIdAndDelete({_id:req.body.cartid}).exec()
-.then(data => {
-    console.log(data);
+// await cartSchema.findByIdAndDelete({_id:req.body.cartid}).exec()
+// .then(data => {
+//     console.log(data);
    
-}).catch(err => {
-    console.log(err);
+// }).catch(err => {
+//     console.log(err);
  
-})
+// })
+console.log("pdts",req.body.products);
+
+    cartSchema.deleteMany({userid:req.body.userid}).exec()
+   .then(data => {
+       console.log(data);
+      
+   }).catch(err => {
+       console.log(err);
+    
+   })
+
 
     const obj = new orderSchema({
 

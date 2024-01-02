@@ -7,6 +7,7 @@ const product=require('./Farmer/prodController')
 const cart=require('./Customer/cartController')
 const wishlist=require('./Customer/wishlistController')
 const orders=require('./Customer/orderController')
+const delivery=require('./DeliveryAgent/deliveryController')
 
 //customer routes
 router.post('/registerCustomer',customercontroller.registerCustomer)
@@ -86,5 +87,12 @@ router.post('/viewwishlistById/:id',wishlist.getproductbyid)
 router.post('/deletewishlistById/:id',wishlist.deleteproduct)
 router.post('/viewwishlistByUserId/:id',wishlist.getproductbyUserId)
 
+//product routes
+router.post('/addProduct',delivery.upload,delivery.registerDriver)
+router.post('/editProductById/:id',delivery.upload,delivery.editDriverById)
+router.post('/viewDrivers',delivery.viewDrivers)
+router.post('/viewDriverById/:id',delivery.viewDriverById)
+router.post('/deleteDriverById/:id',delivery.deleteDriverById)
+router.post('/loginDriver',delivery.loginDriver)
 
 module.exports=router
