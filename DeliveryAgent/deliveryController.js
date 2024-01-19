@@ -1,4 +1,6 @@
+const orderSchema = require('../Customer/orderSchema');
 const deliverySchema=require('./deliveryAgentSchema')
+const locationupdates=require('./locationUpdates')
 const multer = require("multer");
 
 const storage = multer.diskStorage({
@@ -16,7 +18,6 @@ const registerDriver=(req,res)=>{
 
       const newDriver=new deliverySchema({
           name:req.body.name,
-          gender:req.body.gender,
           location:req.body.location,
           licence:req.file,
           contact:req.body.contact,
@@ -44,7 +45,8 @@ const registerDriver=(req,res)=>{
   //View all Drivers
   
   const viewDrivers=(req,res)=>{
-      deliverySchema.find().exec()
+    console.log("apin");
+      deliverySchema.find({isactive:true}).exec()
       .then(data=>{
         if(data.length>0){
         res.json({
@@ -70,7 +72,30 @@ const registerDriver=(req,res)=>{
     
     // view drivers finished
     
+    const viewDriverReqs=(req,res)=>{
+      deliverySchema.find({isactive:false}).exec()
+      .then(data=>{
+        if(data.length>0){
+        res.json({
+            status:200,
+            msg:"Data obtained successfully",
+            data:data
+        })
+      }else{
+        res.json({
+          status:200,
+          msg:"No Data obtained "
+      })
+      }
+    }).catch(err=>{
+        res.json({
+            status:500,
+            msg:"Data not Inserted",
+            Error:err
+        })
+    })
     
+    }
     //View  driver by id
     
     const viewDriverById=(req,res)=>{
@@ -121,6 +146,42 @@ const registerDriver=(req,res)=>{
   }
   //accept Drivers by id
   const acceptorderbyDriverId=async(req,res)=>{
+    let date=new Date()
+      console.log(req.body.driverid);
+
+    await orderSchema.findByIdAndUpdate({_id:req.params.id},
+        {
+          deliverystatus:true,
+          driverid:req.body.driverid
+      })
+  .exec().then(data=>{
+    res.json({
+        status:200,
+        msg:"Updated successfully"
+    })
+  }).catch(err=>{
+    res.json({
+        status:500,
+        msg:"Data not Updated",
+        Error:err
+    })
+  })
+    let newDriverUpdate=new locationupdates({
+      driverid:req.body.driverid,
+      userid:req.body.userid,
+
+      date:date,
+      orderid:req.params.id
+  
+    })
+    await newDriverUpdate.save().then(data=>{
+      console.log("data saved");
+    })
+    .catch(err=>{
+      console.log("err on loc updates",err);
+    })
+
+
   }
   
    // del drivers by id
@@ -178,25 +239,6 @@ const loginDriver = (req, res) => {
   //Login  --finished
 //View all orders for drivers
   
-  const viewPendingOrdesForDrivers=(req,res)=>{
-    deliveryOrders.find({mid:req.params.id,driverstatus:"pending"}).exec()
-    .then(data=>{
-      
-      res.json({
-          status:200,
-          msg:"Data obtained successfully",
-          data:data
-      })
-    
-  }).catch(err=>{
-      res.json({
-          status:500,
-          msg:"Data not Inserted",
-          Error:err
-      })
-  })
-  
-  }
   
   const viewAcceptedOrders=(req,res)=>{
     locationupdates.find({driverid:req.params.id,isactive:true}).populate('orderid').exec()
@@ -216,7 +258,122 @@ const loginDriver = (req, res) => {
       })
   })
   }
+//View  driver by id
+    
+const acceptDriverById=(req,res)=>{
+  deliverySchema.findByIdAndUpdate({_id:req.params.id},{isactive:true}).exec()
+  .then(data=>{
+    
+    res.json({
+        status:200,
+        msg:"Data obtained successfully",
+        data:data
+    })
+  
+}).catch(err=>{
+    res.json({
+        status:500,
+        msg:"Data not Inserted",
+        Error:err
+    })
+})
 
+}
+
+//View all Drivers
+  
+const viewOrdersforDelivery=(req,res)=>{
+    orderSchema.find({deliverystatus:false}).populate('userid').exec()
+    .then(data=>{
+      if(data.length>0){
+      res.json({
+          status:200,
+          msg:"Data obtained successfully",
+          data:data
+      })
+    }else{
+      res.json({
+        status:200,
+        msg:"No Data obtained "
+    })
+    }
+  }).catch(err=>{
+      res.json({
+          status:500,
+          msg:"Data not Inserted",
+          Error:err
+      })
+  })
+  
+  }
+  
+  //View all Drivers
+  
+const viewOrdersbyDriverId=(req,res)=>{
+  console.log("id",req.params.id);
+  locationupdates.find({driverid:req.params.id,status:{$ne:'Delivered'}}).populate('userid').exec()
+  .then(data=>{
+    if(data.length>0){
+      console.log(data);
+    res.json({
+        status:200,
+        msg:"Data obtained successfully",
+        data:data
+    })
+  }else{
+    res.json({
+      status:200,
+      msg:"No Data obtained "
+  })
+  }
+}).catch(err=>{
+    res.json({
+        status:500,
+        msg:"Data not Inserted",
+        Error:err
+    })
+})
+
+}
+const updateStatusByDriverId=async (req,res)=>{
+  console.log("id",req.body.orderid);
+  await locationupdates.findByIdAndUpdate({_id:req.body.orderid},{
+    status:req.body.status,
+    comments:req.body.comments
+  }).exec()
+  .then(data=>{
+    if(data.length>0){
+    res.json({
+        status:200,
+        msg:"Data obtained successfully",
+        data:data
+    })
+  }else{
+    res.json({
+      status:200,
+      msg:"No Data obtained "
+  })
+  }
+}).catch(err=>{
+    res.json({
+        status:500,
+        msg:"Data not Inserted",
+        Error:err
+    })
+})
+
+await orderSchema.findOneAndUpdate({orderid:req.body.orderid},{
+  status:req.body.status
+}).exec()
+.then(data=>{
+ 
+  console.log("updated Successfully");
+
+}).catch(err=>{
+  console.log("updated Successfully");
+})
+
+}
   module.exports={
     registerDriver,
     loginDriver,
@@ -224,5 +381,12 @@ const loginDriver = (req, res) => {
     viewDrivers,
     editDriverById,
     deleteDriverById,
-    upload
+    upload,
+    acceptDriverById,
+    viewDriverReqs,
+    viewOrdersforDelivery,
+    acceptorderbyDriverId,
+    viewOrdersbyDriverId,
+    updateStatusByDriverId
+    
 }

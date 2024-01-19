@@ -19,7 +19,16 @@ const cSchema = mongoose.Schema({
   deliverystatus:{
     type:Boolean,
     default:false
-  }
+  },
+  driverid:{
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "deliveryagents",
+  },
+  status:{
+    type:String,
+    default:'Order Confirmed. Your Items will be dispatched soon'
+
+}
  
 });
 

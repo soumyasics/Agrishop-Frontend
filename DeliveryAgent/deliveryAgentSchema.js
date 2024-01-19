@@ -22,10 +22,6 @@ const deliverySchema=mongoose.Schema({
         type:String,
         required:true
     },
-   gender:{
-        type:String,
-        required:true
-    },
    
     licence:{
         type:Object,
@@ -34,6 +30,10 @@ const deliverySchema=mongoose.Schema({
     location:{
         type:String,
         required:true
+    },
+    isactive:{
+        type:Boolean,
+        default:false
     }
 });
 module.exports=mongoose.model('deliveryagents',deliverySchema)
